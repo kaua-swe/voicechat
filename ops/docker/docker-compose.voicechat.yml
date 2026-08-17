@@ -1,3 +1,5 @@
+name: voicechat
+
 services:
   voicechat-backend:
     build:
