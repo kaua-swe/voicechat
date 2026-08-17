@@ -8,6 +8,8 @@ services:
     restart: unless-stopped
     env_file:
       - /etc/voicechat/backend.env
+    environment:
+      VOICECHAT_BACKEND_HOST: 0.0.0.0
     ports:
       - "127.0.0.1:4378:4378"
     read_only: true
