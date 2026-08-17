@@ -1,0 +1,32 @@
+[package]
+name = "voice-chat"
+version = "0.1.0"
+description = "Windows-only Tauri desktop companion for continuous live meeting transcription and response suggestions."
+authors = ["Voice Chat"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "voice_chat_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+base64 = "0.22"
+cpal = "0.16"
+keyring = { version = "3", features = ["windows-native"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tauri = { version = "2", features = [] }
+thiserror = "2"
+time = { version = "0.3", features = ["formatting"] }
+tokio = { version = "1", features = ["rt", "macros", "time"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+url = "2"
+
+[dev-dependencies]
+tempfile = "3"

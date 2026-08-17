@@ -1,0 +1,35 @@
+{
+  "name": "voice-chat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Windows-only Tauri 2 desktop companion for continuous live meeting transcription and response suggestions.",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 1420",
+    "build": "tsc && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:info": "tauri info",
+    "tauri:build": "tauri build --no-bundle",
+    "check": "pnpm build && pnpm test && cargo test --manifest-path src-tauri/Cargo.toml"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vitest": "^2.1.0"
+  },
+  "packageManager": "pnpm@11.22.0"
+}

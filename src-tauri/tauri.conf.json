@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Voice Chat",
+  "version": "0.1.0",
+  "identifier": "com.voicechat.desktop",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Voice Chat",
+        "label": "main",
+        "width": 460,
+        "height": 760,
+        "minWidth": 380,
+        "minHeight": 560,
+        "resizable": true,
+        "fullscreen": false,
+        "alwaysOnTop": true,
+        "decorations": true,
+        "transparent": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:* http://localhost:* ws://localhost:*; img-src 'self' asset: data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "windows": {
+      "nsis": {
+        "displayLanguageSelector": false,
+        "installerIcon": null
+      }
+    }
+  }
+}

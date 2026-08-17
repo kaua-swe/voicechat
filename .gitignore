@@ -1,0 +1,35 @@
+node_modules/
+dist/
+build/
+coverage/
+target/
+src-tauri/target/
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+*.log
+*.tmp
+*.bak
+work/
+.DS_Store
+Thumbs.db
+
+# Credentials and private material
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+id_rsa*
+id_ed25519*
+secrets/
+local-data/
+
+# Generated desktop artifacts
+*.exe
+*.msi
+*.msix
+*.appx
