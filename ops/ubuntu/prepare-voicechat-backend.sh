@@ -16,6 +16,7 @@ fi
 
 sudo mkdir -p "$ENV_DIR" "$LOG_DIR" "$ACME_DIR" "$SSL_DIR"
 sudo chmod 0750 "$ENV_DIR" "$SSL_DIR" "$LOG_DIR"
+sudo chown root:ubuntu "$ENV_DIR"
 
 if [[ ! -f "$ENV_DIR/backend.env" ]]; then
   token="$(openssl rand -base64 48 | tr -d '\n')"
