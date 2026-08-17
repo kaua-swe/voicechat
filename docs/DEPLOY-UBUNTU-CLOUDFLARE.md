@@ -14,6 +14,7 @@ O Voice Chat deve usar recursos proprios:
 - container: `voicechat-backend`;
 - compose file: `ops/docker/docker-compose.voicechat.yml`;
 - vhost Nginx especifico: `voicechat.sproce.com.br`.
+- proxy host especifico do Nginx Proxy Manager: `ops/nginx-proxy-manager/voicechat.proxy_host.conf`.
 
 Nao editar vhosts default nem configuracoes globais compartilhadas para este deploy.
 
@@ -33,6 +34,11 @@ Abordagens seguras:
 - ou certificado publico ACME via DNS-01 usando token Cloudflare com permissao minima para a zona.
 
 Nao emitir certificado publico HTTP-01 se a validacao atraves do proxy nao for confiavel.
+
+Se Cloudflare redirecionar HTTP para HTTPS e o origin ainda nao tiver certificado valido, HTTP-01 fica bloqueado. Nesse caso, usar uma das opcoes:
+
+- Cloudflare Origin Certificate gerado para `voicechat.sproce.com.br` e instalado no origin;
+- ACME DNS-01 com token Cloudflare de permissao minima para editar DNS da zona.
 
 ## Backend
 
