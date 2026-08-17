@@ -1,0 +1,25 @@
+[Unit]
+Description=Voice Chat backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=voicechat
+Group=voicechat
+WorkingDirectory=/home/ubuntu/voicechat/backend
+EnvironmentFile=/etc/voicechat/backend.env
+ExecStart=/usr/bin/node /home/ubuntu/voicechat/backend/dist/server.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/log/voicechat
+CapabilityBoundingSet=
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target
