@@ -1,14 +1,14 @@
 import { createHash, randomBytes } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
-import { LocalStreamingAdapter } from "./aiAdapter.js";
+import { createAiAdapterFromEnv } from "./aiAdapter.js";
 import { validateClientMessage } from "./protocol.js";
 import { sanitizeLog } from "./security.js";
 
 const websocketGuid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-const maxFrameBytes = 64 * 1024;
+const maxFrameBytes = 768 * 1024;
 
-export function handleWebSocket(req: IncomingMessage, socket: Duplex) {
+export function handleWebSocket(req: IncomingMessage, socket: Duplex, env: NodeJS.ProcessEnv = process.env) {
   const key = req.headers["sec-websocket-key"];
   if (typeof key !== "string") {
     socket.destroy();
@@ -25,10 +25,16 @@ export function handleWebSocket(req: IncomingMessage, socket: Duplex) {
     ].join("\r\n"),
   );
 
-  const adapter = new LocalStreamingAdapter();
+  const adapter = createAiAdapterFromEnv(env);
   let buffer = Buffer.alloc(0);
+  let queue = Promise.resolve();
   socket.on("data", (chunk) => {
     buffer = Buffer.concat([buffer, chunk]);
+    if (buffer.byteLength > maxFrameBytes + 16 * 1024) {
+      sendText(socket, JSON.stringify({ type: "error", message: "message too large" }));
+      socket.destroy();
+      return;
+    }
     try {
       let decoded;
       while ((decoded = decodeFrame(buffer))) {
@@ -42,9 +48,16 @@ export function handleWebSocket(req: IncomingMessage, socket: Duplex) {
         }
         const parsed = JSON.parse(decoded.payload.toString("utf8"));
         const message = validateClientMessage(parsed);
-        for (const response of adapter.process(message)) {
-          sendText(socket, JSON.stringify(response));
-        }
+        queue = queue
+          .then(async () => {
+            for (const response of await adapter.process(message)) {
+              sendText(socket, JSON.stringify(response));
+            }
+          })
+          .catch((error) => {
+            sendText(socket, JSON.stringify({ type: "error", message: "processing failed" }));
+            console.warn("voicechat websocket processing failed", sanitizeLog(error));
+          });
       }
     } catch (error) {
       sendText(socket, JSON.stringify({ type: "error", message: "invalid message" }));

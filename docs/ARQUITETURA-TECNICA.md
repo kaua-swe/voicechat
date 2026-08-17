@@ -27,7 +27,7 @@ Audio bruto nao e persistido. A implementacao atual transforma callbacks de audi
 - inicio explicito da sessao;
 - pausa, retomada e encerramento;
 - captura continua;
-- eventos Tauri incrementais em `voicechat://session-event`;
+- eventos Tauri incrementais em `voicechat-session-event`;
 - transcricao parcial/final gerada pelo adaptador local;
 - sugestoes atualizadas enquanto frames continuam chegando.
 

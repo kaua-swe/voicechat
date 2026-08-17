@@ -49,8 +49,29 @@ O backend escuta somente em `127.0.0.1:4378` e fica atras do proxy de origem. Se
 Variavel obrigatoria:
 
 - `VOICECHAT_AUTH_TOKEN_SHA256`: digest SHA-256 do token bearer usado pelo app desktop.
+- `VOICECHAT_AUTH_TOKEN_SHA256_LIST`: lista opcional de hashes adicionais para tokens por usuario/dispositivo.
 
 O script `ops/ubuntu/prepare-voicechat-backend.sh` cria um token de bootstrap se `/etc/voicechat/backend.env` ainda nao existir. O token em texto claro fica somente no VPS em `/etc/voicechat/bootstrap-token.txt` com permissao restrita; o servico usa apenas o hash.
+
+O script `ops/ubuntu/provision-client-token.sh` cria tokens adicionais e grava apenas hashes no ambiente do backend. O token gerado em texto claro fica em area protegida do VPS e deve ser entregue ao usuario somente por canal seguro aprovado.
+
+## OpenAI server-side
+
+A transcricao OpenAI e habilitada somente no backend:
+
+```env
+VOICECHAT_TRANSCRIPTION_PROVIDER=openai
+VOICECHAT_OPENAI_TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
+OPENAI_API_KEY=definir_somente_no_vps
+```
+
+Nunca colocar `OPENAI_API_KEY` no cliente desktop, no Git, no frontend, nos logs ou em docs. Para validar conectividade sem enviar audio, usar o endpoint autenticado:
+
+```bash
+curl -fsS -X POST https://voicechat.sproce.com.br/v1/provider-check
+```
+
+Esse exemplo omite cabecalhos de autenticacao de proposito. Em producao, a chamada precisa da origem permitida e do bearer token do app.
 
 ## Validacao antes de reload
 

@@ -19,7 +19,7 @@ use uuid::Uuid;
 const MAX_TRANSCRIPT_SEGMENTS: usize = 80;
 const MAX_SUGGESTIONS: usize = 3;
 const MAX_DIAGNOSTICS: usize = 80;
-const EVENT_NAME: &str = "voicechat://session-event";
+const EVENT_NAME: &str = "voicechat-session-event";
 
 pub struct SessionRuntime {
     pub session_id: String,

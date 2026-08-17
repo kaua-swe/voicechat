@@ -1,4 +1,5 @@
-import { createServer } from "node:http";
+import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { checkAiProviderFromEnv } from "./aiAdapter.js";
 import { RateLimiter } from "./rateLimit.js";
 import {
   authenticate,
@@ -15,6 +16,10 @@ const config = loadSecurityConfig(process.env);
 const limiter = new RateLimiter(config.rateLimitPerMinute);
 
 const server = createServer((req, res) => {
+  void handleRequest(req, res);
+});
+
+async function handleRequest(req: IncomingMessage, res: ServerResponse) {
   const origin = typeof req.headers.origin === "string" ? req.headers.origin : undefined;
   try {
     if (req.method === "OPTIONS") {
@@ -53,12 +58,18 @@ const server = createServer((req, res) => {
       return;
     }
 
+    if (req.url === "/v1/provider-check" && req.method === "POST") {
+      const result = await checkAiProviderFromEnv(process.env);
+      sendJson(res, 200, result, origin);
+      return;
+    }
+
     sendJson(res, 404, { error: "not found" }, origin);
   } catch (error) {
     console.error("voicechat request failed", sanitizeLog(error));
     sendJson(res, 500, { error: "internal error" }, origin);
   }
-});
+}
 
 server.on("upgrade", (req, socket) => {
   try {
@@ -71,7 +82,7 @@ server.on("upgrade", (req, socket) => {
       socket.destroy();
       return;
     }
-    handleWebSocket(req, socket);
+    handleWebSocket(req, socket, process.env);
   } catch (error) {
     console.warn("voicechat upgrade rejected", sanitizeLog(error));
     socket.destroy();

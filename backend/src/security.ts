@@ -6,7 +6,7 @@ const tokenPrefix = "Bearer ";
 
 export interface SecurityConfig {
   allowedOrigins: Set<string>;
-  tokenHash: string;
+  tokenHashes: Set<string>;
   trustProxy: boolean;
   rateLimitPerMinute: number;
 }
@@ -18,13 +18,16 @@ export interface ClientIdentity {
 
 export function loadSecurityConfig(env: NodeJS.ProcessEnv): SecurityConfig {
   const allowed = splitCsv(env.VOICECHAT_ALLOWED_ORIGINS ?? env.VOICECHAT_PUBLIC_ORIGIN ?? "");
-  const tokenHash = (env.VOICECHAT_AUTH_TOKEN_SHA256 ?? "").trim().toLowerCase();
-  if (!/^[a-f0-9]{64}$/.test(tokenHash)) {
+  const tokenHashes = [
+    (env.VOICECHAT_AUTH_TOKEN_SHA256 ?? "").trim().toLowerCase(),
+    ...splitCsv(env.VOICECHAT_AUTH_TOKEN_SHA256_LIST ?? "").map((item) => item.toLowerCase()),
+  ].filter(Boolean);
+  if (tokenHashes.length === 0 || tokenHashes.some((hash) => !/^[a-f0-9]{64}$/.test(hash))) {
     throw new Error("VOICECHAT_AUTH_TOKEN_SHA256 must be a SHA-256 hex digest");
   }
   return {
     allowedOrigins: new Set(allowed),
-    tokenHash,
+    tokenHashes: new Set(tokenHashes),
     trustProxy: env.VOICECHAT_TRUST_PROXY === "1",
     rateLimitPerMinute: parsePositiveInt(env.VOICECHAT_RATE_LIMIT_PER_MINUTE, 120),
   };
@@ -48,9 +51,16 @@ export function authenticate(req: IncomingMessage, config: SecurityConfig): Clie
     return null;
   }
   const digest = sha256(token);
-  const expected = Buffer.from(config.tokenHash, "hex");
   const actual = Buffer.from(digest, "hex");
-  if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
+  let matched = false;
+  for (const hash of config.tokenHashes) {
+    const expected = Buffer.from(hash, "hex");
+    if (expected.length === actual.length && timingSafeEqual(expected, actual)) {
+      matched = true;
+      break;
+    }
+  }
+  if (!matched) {
     return null;
   }
   return {

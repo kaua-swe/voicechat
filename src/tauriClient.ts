@@ -130,6 +130,6 @@ export const tauriClient = {
     if (!hasTauri) {
       return () => undefined;
     }
-    return listen<SessionEvent>("voicechat://session-event", (event) => handler(event.payload));
+    return listen<SessionEvent>("voicechat-session-event", (event) => handler(event.payload));
   },
 };

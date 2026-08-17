@@ -24,6 +24,16 @@ describe("backend security", () => {
     expect(authenticate(req({ authorization: "Bearer wrong-token-12345" }), config)).toBeNull();
   });
 
+  it("authenticates bearer tokens from a scoped hash list", () => {
+    const token = "user-scoped-test-token-12345";
+    const config = loadSecurityConfig({
+      VOICECHAT_AUTH_TOKEN_SHA256: sha256("bootstrap-test-token-12345"),
+      VOICECHAT_AUTH_TOKEN_SHA256_LIST: sha256(token),
+      VOICECHAT_ALLOWED_ORIGINS: "https://voicechat.sproce.com.br",
+    });
+    expect(authenticate(req({ authorization: `Bearer ${token}` }), config)).not.toBeNull();
+  });
+
   it("enforces origin allowlist", () => {
     const config = loadSecurityConfig({
       VOICECHAT_AUTH_TOKEN_SHA256: sha256("local-test-token-12345"),
