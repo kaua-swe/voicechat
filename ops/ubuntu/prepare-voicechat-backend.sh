@@ -24,6 +24,7 @@ if [[ ! -f "$ENV_DIR/backend.env" ]]; then
   printf '%s\n' "$token" | sudo tee "$TOKEN_FILE" >/dev/null
   sudo install -m 0640 ops/env/backend.env.example "$ENV_DIR/backend.env"
   sudo sed -i "s/^VOICECHAT_AUTH_TOKEN_SHA256=.*/VOICECHAT_AUTH_TOKEN_SHA256=$token_hash/" "$ENV_DIR/backend.env"
+  sudo chown root:ubuntu "$ENV_DIR/backend.env"
 fi
 
 docker compose -f ops/docker/docker-compose.voicechat.yml build
