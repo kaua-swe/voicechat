@@ -40,6 +40,8 @@ Se Cloudflare redirecionar HTTP para HTTPS e o origin ainda nao tiver certificad
 - Cloudflare Origin Certificate gerado para `voicechat.sproce.com.br` e instalado no origin;
 - ACME DNS-01 com token Cloudflare de permissao minima para editar DNS da zona.
 
+Quando o token Cloudflare for usado somente como ambiente temporario e nao persistido no VPS, a renovacao automatica DNS-01 nao tera credencial permanente. Agendar uma janela de renovacao antes do vencimento do certificado e executar novamente o fluxo DNS-01 com token temporario, ou autorizar uma credencial persistente de permissao minima em armazenamento root-only.
+
 ## Backend
 
 O backend escuta somente em `127.0.0.1:4378` e fica atras do proxy de origem. Segredos ficam apenas em `/etc/voicechat/backend.env`.
