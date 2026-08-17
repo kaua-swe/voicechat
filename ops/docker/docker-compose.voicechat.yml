@@ -1,0 +1,24 @@
+services:
+  voicechat-backend:
+    build:
+      context: /home/ubuntu/voicechat
+      dockerfile: backend/Dockerfile
+    image: voicechat-backend:local
+    container_name: voicechat-backend
+    restart: unless-stopped
+    env_file:
+      - /etc/voicechat/backend.env
+    ports:
+      - "127.0.0.1:4378:4378"
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=32m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"

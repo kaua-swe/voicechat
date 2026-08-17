@@ -2,36 +2,33 @@
 set -euo pipefail
 
 APP_DIR="/home/ubuntu/voicechat"
-BACKEND_DIR="$APP_DIR/backend"
 ENV_DIR="/etc/voicechat"
 LOG_DIR="/var/log/voicechat"
 ACME_DIR="/var/www/voicechat-acme"
 SSL_DIR="/etc/ssl/voicechat"
 SERVICE_USER="voicechat"
+TOKEN_FILE="$ENV_DIR/bootstrap-token.txt"
 
 if [[ ! -d "$APP_DIR/.git" ]]; then
   echo "Repository must be cloned to $APP_DIR before running this script." >&2
   exit 1
 fi
 
-sudo id -u "$SERVICE_USER" >/dev/null 2>&1 || sudo useradd --system --home-dir "$APP_DIR" --shell /usr/sbin/nologin "$SERVICE_USER"
 sudo mkdir -p "$ENV_DIR" "$LOG_DIR" "$ACME_DIR" "$SSL_DIR"
-sudo chown "$SERVICE_USER:$SERVICE_USER" "$LOG_DIR"
-sudo chmod 0750 "$ENV_DIR" "$SSL_DIR"
-
-corepack pnpm install --frozen-lockfile
-corepack pnpm backend:build
-corepack pnpm backend:test
+sudo chmod 0750 "$ENV_DIR" "$SSL_DIR" "$LOG_DIR"
 
 if [[ ! -f "$ENV_DIR/backend.env" ]]; then
-  echo "Create $ENV_DIR/backend.env from ops/env/backend.env.example with real server-only values." >&2
-  exit 2
+  token="$(openssl rand -base64 48 | tr -d '\n')"
+  token_hash="$(printf '%s' "$token" | sha256sum | awk '{print $1}')"
+  sudo install -m 0600 /dev/null "$TOKEN_FILE"
+  printf '%s\n' "$token" | sudo tee "$TOKEN_FILE" >/dev/null
+  sudo install -m 0640 ops/env/backend.env.example "$ENV_DIR/backend.env"
+  sudo sed -i "s/^VOICECHAT_AUTH_TOKEN_SHA256=.*/VOICECHAT_AUTH_TOKEN_SHA256=$token_hash/" "$ENV_DIR/backend.env"
 fi
 
-sudo install -m 0644 "$APP_DIR/ops/systemd/voicechat-backend.service" /etc/systemd/system/voicechat-backend.service
-sudo systemctl daemon-reload
-sudo systemctl enable voicechat-backend.service
-sudo systemctl restart voicechat-backend.service
-sudo systemctl --no-pager --full status voicechat-backend.service
+docker compose -f ops/docker/docker-compose.voicechat.yml build
+docker compose -f ops/docker/docker-compose.voicechat.yml up -d
 
-echo "Backend service prepared. Configure hostname-specific TLS/proxy only after origin certificate files exist."
+docker compose -f ops/docker/docker-compose.voicechat.yml ps
+
+echo "Backend container prepared on loopback. Configure hostname-specific proxy/TLS separately."

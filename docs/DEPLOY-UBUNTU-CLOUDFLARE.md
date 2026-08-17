@@ -11,6 +11,8 @@ O Voice Chat deve usar recursos proprios:
 - ACME webroot isolado: `/var/www/voicechat-acme`;
 - certificados de origin: `/etc/ssl/voicechat`;
 - unit systemd: `voicechat-backend.service`;
+- container: `voicechat-backend`;
+- compose file: `ops/docker/docker-compose.voicechat.yml`;
 - vhost Nginx especifico: `voicechat.sproce.com.br`.
 
 Nao editar vhosts default nem configuracoes globais compartilhadas para este deploy.
@@ -34,11 +36,13 @@ Nao emitir certificado publico HTTP-01 se a validacao atraves do proxy nao for c
 
 ## Backend
 
-O backend escuta somente em `127.0.0.1:4378` e fica atras do Nginx. Segredos ficam apenas em `/etc/voicechat/backend.env`.
+O backend escuta somente em `127.0.0.1:4378` e fica atras do proxy de origem. Segredos ficam apenas em `/etc/voicechat/backend.env`.
 
 Variavel obrigatoria:
 
 - `VOICECHAT_AUTH_TOKEN_SHA256`: digest SHA-256 do token bearer usado pelo app desktop.
+
+O script `ops/ubuntu/prepare-voicechat-backend.sh` cria um token de bootstrap se `/etc/voicechat/backend.env` ainda nao existir. O token em texto claro fica somente no VPS em `/etc/voicechat/bootstrap-token.txt` com permissao restrita; o servico usa apenas o hash.
 
 ## Validacao antes de reload
 
