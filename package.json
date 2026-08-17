@@ -7,6 +7,9 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 1420",
     "build": "tsc && vite build",
+    "backend:build": "tsc -p backend/tsconfig.json",
+    "backend:start": "node backend/dist/server.js",
+    "backend:test": "vitest run backend/src",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -14,7 +17,7 @@
     "tauri:dev": "tauri dev",
     "tauri:info": "tauri info",
     "tauri:build": "tauri build --no-bundle",
-    "check": "pnpm build && pnpm test && cargo test --manifest-path src-tauri/Cargo.toml"
+    "check": "pnpm build && pnpm test && pnpm backend:build && pnpm backend:test && cargo test --manifest-path src-tauri/Cargo.toml"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",
@@ -24,6 +27,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0",
+    "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",

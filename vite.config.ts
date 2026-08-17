@@ -12,6 +12,6 @@ export default defineConfig({
   envPrefix: ["VITE_"],
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "backend/**/*.test.ts"],
   },
 });

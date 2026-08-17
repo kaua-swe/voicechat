@@ -35,6 +35,8 @@ corepack pnpm test
 cargo test --manifest-path src-tauri/Cargo.toml
 cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+corepack pnpm backend:build
+corepack pnpm backend:test
 corepack pnpm tauri:build
 ```
 

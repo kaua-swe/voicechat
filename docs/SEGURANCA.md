@@ -15,7 +15,18 @@
 
 ## Backend de producao esperado
 
-O backend do usuario deve:
+O backend versionado em `backend/` deve ser executado atras de um proxy HTTPS/WSS do origin. Ele exige configuracao por variaveis de ambiente server-side e nao aceita segredos no cliente desktop.
+
+Variaveis principais:
+
+- `VOICECHAT_AUTH_TOKEN_SHA256`: hash SHA-256 do token bearer aceito.
+- `VOICECHAT_ALLOWED_ORIGINS`: lista separada por virgula de origens HTTPS permitidas.
+- `VOICECHAT_PUBLIC_ORIGIN`: origem publica esperada, usada como fallback da allowlist.
+- `VOICECHAT_BACKEND_HOST`: host de bind, recomendado `127.0.0.1`.
+- `VOICECHAT_BACKEND_PORT`: porta local do servico.
+- `VOICECHAT_TRUST_PROXY`: `1` apenas quando atras de proxy confiavel no origin.
+
+O backend do usuario tambem deve:
 
 - autenticar sessoes;
 - aplicar rate limit por usuario, token, dispositivo ou sessao;
